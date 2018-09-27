@@ -17,16 +17,18 @@ void printAllElements(Iterator<T>&& in)
    }
 }
 
-void cb_time_out()
-{
-  std::cout<<"timeout!"<<std::endl;
-}
-
 int main(int argc, char *argv[])
 {
     int a[] = {1,2,3,4,5};
     printAllElements(Iterator<int>(&a[0],&a[4]));
-    Timer tm(500000000,cb_time_out);
+    auto last = std::chrono::high_resolution_clock::now().time_since_epoch();
+    auto cb = [&last](){
+        auto now = std::chrono::high_resolution_clock::now().time_since_epoch();
+        auto dur = now - last;
+        std::cout<<dur.count()*1e-6<<std::endl;
+        last = now;
+      };
+    Timer tm(100000000,cb);
     while (tm.isRunning())
       {
         if (getchar() == 'q')
